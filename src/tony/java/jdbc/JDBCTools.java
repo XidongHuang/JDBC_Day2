@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +12,44 @@ import java.util.Properties;
 
 public class JDBCTools {
 
+	/**
+	 * 执行SQL 语句，使用PreparedStatement
+	 * 
+	 * 
+	 * @param sql
+	 * @param args
+	 */
+	public static void update(String sql, Object ... args){
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		
+		try {
+			connection = JDBCTools.getConnection();
+			preparedStatement = connection.prepareStatement(sql);
+			
+			
+			for(int i = 0;i< args.length;i++ ){
+				preparedStatement.setObject(i+1, args[i]);
+				
+			}
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		} finally {
+			releaseDB(null, preparedStatement, connection);
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/**
@@ -62,7 +101,7 @@ public class JDBCTools {
 	 * @param conn
 	 */
 	
-	public static void releaseDB(ResultSet rs, Statement statement, Connection conn){
+	public static void releaseDB(ResultSet rs, Statement statement, Connection connection){
 		
 		if(rs != null) {
 			try {
@@ -82,9 +121,9 @@ public class JDBCTools {
 			}
 		}
 		
-		if(conn != null) {
+		if(connection != null) {
 			try {
-				conn.close();
+				connection.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
